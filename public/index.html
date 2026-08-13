@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>덤불속 - In a Grove</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div id="screen-lobby" class="screen">
+  <div class="lobby-wrap">
+    <h1>🌿 덤불속 <span class="sub">In a Grove</span></h1>
+
+    <div id="lobby-entry" class="card">
+      <div class="field">
+        <label>닉네임</label>
+        <input id="nickname-input" maxlength="10" placeholder="닉네임 입력">
+      </div>
+      <div class="row">
+        <button id="create-room-btn" class="primary">방 만들기</button>
+      </div>
+      <div class="row join-row">
+        <input id="join-code-input" maxlength="6" placeholder="방 코드 6자리">
+        <button id="join-room-btn">입장하기</button>
+      </div>
+      <p id="lobby-error" class="error"></p>
+    </div>
+
+    <div id="lobby-room" class="card hidden">
+      <h2>방 코드: <span id="room-code-display"></span></h2>
+      <ul id="player-list"></ul>
+      <div class="row bot-toggle-row">
+        <label class="toggle">
+          <input type="checkbox" id="bot-toggle">
+          부족 인원 봇으로 채우기 (최대 5인)
+        </label>
+      </div>
+      <button id="start-game-btn" class="primary hidden">게임 시작</button>
+      <p class="hint" id="waiting-hint">방장이 게임을 시작할 때까지 기다리세요...</p>
+    </div>
+
+    <div id="lobby-resuming" class="card hidden">
+      <p class="hint">이전 게임에 재접속하는 중...</p>
+    </div>
+  </div>
+</div>
+
+<div id="screen-game" class="screen hidden">
+  <header class="game-header">
+    <div>방 코드 <b id="hdr-room-code"></b></div>
+    <div>라운드 <b id="hdr-round"></b> / <span id="hdr-max-round"></span></div>
+    <div id="hdr-finder">발견자: -</div>
+  </header>
+
+  <div class="players-strip" id="players-strip"></div>
+
+  <main class="board">
+    <div class="crime-scene">
+      <div class="victim-card">
+        <div class="card-face back">피해자</div>
+      </div>
+      <div class="suspects-row" id="suspects-row"></div>
+    </div>
+
+    <div id="shared-card-box" class="hidden">
+      <div class="label">공개 카드 (둘 다 확인 가능)</div>
+      <div class="mini-card" id="shared-card-value"></div>
+    </div>
+  </main>
+
+  <div class="info-panel">
+    <div class="my-info card">
+      <h3>내 정보</h3>
+      <div id="my-info-body"></div>
+    </div>
+    <div class="action-panel card">
+      <h3 id="phase-title">-</h3>
+      <div id="action-body"></div>
+    </div>
+    <div class="log-panel card">
+      <h3>진행 로그</h3>
+      <div id="log-body"></div>
+    </div>
+  </div>
+</div>
+
+<div id="overlay" class="overlay hidden">
+  <div class="overlay-box" id="overlay-box"></div>
+</div>
+
+<script src="/socket.io/socket.io.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
