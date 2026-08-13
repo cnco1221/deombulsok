@@ -181,6 +181,15 @@ function renderPlayersStrip() {
   });
 }
 
+// White person-silhouette card face with the value centered on it (used for suspect/victim/shared cards).
+function personCardMarkup(numberHtml) {
+  return `<svg class="person-svg" viewBox="0 0 100 140" preserveAspectRatio="xMidYMid meet" aria-hidden="true">
+      <path class="person-shape" d="M50 55 C34 55 18 75 14 138 L86 138 C82 75 66 55 50 55 Z"></path>
+      <circle class="person-shape" cx="50" cy="32" r="20"></circle>
+    </svg>
+    <span class="card-number">${numberHtml}</span>`;
+}
+
 function renderCrimeScene() {
   const row = document.getElementById('suspects-row');
   row.innerHTML = '';
@@ -207,7 +216,7 @@ function renderCrimeScene() {
     }
 
     const plainLabel = known ? (s.value === null ? '무지' : s.value) : '?';
-    face.innerHTML = `<span>${known ? valueLabelHtml(s.value) : '?'}</span>` + (s.unseenMarker ? '<span class="unseen-marker">🚫확인안됨</span>' : '');
+    face.innerHTML = personCardMarkup(known ? valueLabelHtml(s.value) : '?') + (s.unseenMarker ? '<span class="unseen-marker">🚫확인안됨</span>' : '');
     face.setAttribute('aria-label', `용의자 카드: ${plainLabel}`);
 
     face.addEventListener('click', () => onSuspectClick(s.id, canSelectForCheck, canAccuse));
@@ -234,7 +243,7 @@ function renderCrimeScene() {
   if (state.twoPlayerMode && state.sharedCard) {
     sharedBox.classList.remove('hidden');
     const sharedEl = document.getElementById('shared-card-value');
-    sharedEl.innerHTML = valueLabelHtml(state.sharedCard.value);
+    sharedEl.innerHTML = personCardMarkup(valueLabelHtml(state.sharedCard.value));
     sharedEl.classList.toggle('five-card', state.sharedCard.value === 5);
   } else {
     sharedBox.classList.add('hidden');
@@ -286,10 +295,19 @@ function fmtVal(v) {
   return valueLabelHtml(v);
 }
 
-// 5는 "5가 있으면 최솟값이 범인" 규칙을 뒤집는 특수 카드라 항상 화살표+빨간색으로 강조 표시한다.
+// 5는 "5가 있으면 최솟값이 범인" 규칙을 뒤집는 특수 카드라 항상 둥근 화살표 고리+빨간색으로 강조 표시한다.
 function valueLabelHtml(v) {
   if (v === null) return '무지';
-  if (v === 5) return '<span class="five-value"><span class="arrow">▶</span>5<span class="arrow">◀</span></span>';
+  if (v === 5) {
+    return `<span class="five-value">
+      <svg class="five-ring" viewBox="0 0 40 40" aria-hidden="true">
+        <circle cx="20" cy="20" r="15.5"></circle>
+        <polygon points="16,0.5 25.5,4 16.5,8"></polygon>
+        <polygon points="24,35.5 14.5,32 23.5,28"></polygon>
+      </svg>
+      <span class="five-digit">5</span>
+    </span>`;
+  }
   return String(v);
 }
 

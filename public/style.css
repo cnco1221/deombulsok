@@ -111,10 +111,22 @@ button:disabled { opacity: 0.5; cursor: not-allowed; }
 .board { padding: 24px 20px 10px; text-align: center; }
 
 .crime-scene { display: flex; justify-content: center; gap: 24px; align-items: flex-end; flex-wrap: wrap; }
+
+/* ---------- Person-shaped cards ---------- */
+.person-svg { position: absolute; inset: 0; width: 100%; height: 100%; z-index: 0; overflow: visible; }
+.person-svg .person-shape {
+  fill: #ffffff; stroke: #b6bcc7; stroke-width: 2;
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.45));
+}
+.card-number {
+  position: relative; z-index: 1;
+  color: #16181d; font-weight: 800;
+}
+.card-number.victim-label { font-size: 13px; letter-spacing: 1px; }
+
 .victim-card .card-face {
-  width: 80px; height: 116px; border-radius: 8px; background: #444;
-  display: flex; align-items: center; justify-content: center; font-size: 12px; color: var(--muted);
-  border: 2px dashed var(--border);
+  width: 80px; height: 116px; position: relative;
+  display: flex; align-items: center; justify-content: center;
 }
 
 .suspects-row { display: flex; gap: 18px; flex-wrap: wrap; justify-content: center; }
@@ -123,26 +135,29 @@ button:disabled { opacity: 0.5; cursor: not-allowed; }
   width: 100px; display: flex; flex-direction: column; align-items: center; gap: 8px;
 }
 .suspect-face {
-  width: 100px; height: 140px; border-radius: 10px;
-  background: linear-gradient(160deg, #3a3f4d, #262933);
-  border: 2px solid var(--border);
+  width: 100px; height: 140px;
   display: flex; align-items: center; justify-content: center;
-  font-size: 36px; font-weight: 700; position: relative;
+  font-size: 34px; position: relative;
   transition: transform 0.2s;
 }
-.suspect-face.selectable { cursor: pointer; border-color: var(--accent); }
+.suspect-face.selectable { cursor: pointer; }
+.suspect-face.selectable .person-shape { stroke: var(--accent); stroke-width: 3; }
 .suspect-face.selectable:hover { transform: translateY(-4px); }
-.suspect-face.selected { border-color: var(--good); box-shadow: 0 0 0 2px var(--good); }
-.suspect-face.known { background: linear-gradient(160deg, #4a4130, #262933); }
-.suspect-face.culprit { border-color: var(--danger); box-shadow: 0 0 12px var(--danger); }
-.suspect-face.five-card, .mini-card.five-card {
-  border-color: var(--danger);
-  box-shadow: 0 0 10px rgba(231, 76, 60, 0.6);
+.suspect-face.selected .person-shape { stroke: var(--good); stroke-width: 4; }
+.suspect-face.culprit .person-shape { stroke: var(--danger); stroke-width: 4; filter: drop-shadow(0 0 8px var(--danger)); }
+.suspect-face.five-card .person-shape { stroke: var(--danger); stroke-width: 3; }
+.mini-card.five-card .person-shape { stroke: var(--danger); stroke-width: 3; }
+.five-value {
+  position: relative; color: var(--danger); font-weight: 800;
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 1.6em; height: 1.6em;
 }
-.five-value { color: var(--danger); font-weight: 800; display: inline-flex; align-items: center; gap: 2px; }
-.five-value .arrow { font-size: 0.55em; color: var(--danger); }
+.five-ring { position: absolute; inset: 0; width: 100%; height: 100%; }
+.five-ring circle { fill: none; stroke: currentColor; stroke-width: 2.5; }
+.five-ring polygon { fill: currentColor; }
+.five-digit { position: relative; z-index: 1; }
 .suspect-face .unseen-marker {
-  position: absolute; top: 4px; right: 4px; font-size: 12px; color: var(--muted);
+  position: absolute; top: 2px; right: -4px; font-size: 12px; color: var(--muted); z-index: 2;
 }
 .suspect-face .hidden-mark { color: var(--muted); font-size: 24px; }
 
@@ -153,8 +168,7 @@ button:disabled { opacity: 0.5; cursor: not-allowed; }
 #shared-card-box .label { color: var(--muted); font-size: 13px; margin-bottom: 6px; }
 .mini-card {
   display: inline-flex; align-items: center; justify-content: center;
-  width: 60px; height: 84px; border-radius: 8px; background: var(--panel2);
-  border: 2px solid var(--accent); font-size: 24px; font-weight: 700;
+  width: 60px; height: 84px; position: relative; font-size: 22px;
 }
 
 .info-panel {
