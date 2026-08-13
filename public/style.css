@@ -122,7 +122,10 @@ button:disabled { opacity: 0.5; cursor: not-allowed; }
   position: relative; z-index: 1;
   color: #16181d; font-weight: 800;
 }
-.card-number.victim-label { font-size: 13px; letter-spacing: 1px; }
+.card-number.victim-label {
+  font-size: 13px; letter-spacing: 3px;
+  writing-mode: vertical-rl; text-orientation: upright;
+}
 
 .victim-card .card-face {
   width: 80px; height: 116px; position: relative;
@@ -221,11 +224,12 @@ button:disabled { opacity: 0.5; cursor: not-allowed; }
   .player-chip { font-size: 11px; padding: 4px 8px; }
 
   .board { padding: 16px 8px 4px; }
-  .crime-scene { gap: 12px; }
-  .victim-card .card-face { width: 56px; height: 82px; font-size: 10px; }
-  .suspects-row { gap: 10px; }
-  .suspect-card { width: 76px; }
-  .suspect-face { width: 76px; height: 106px; font-size: 26px; }
+  .crime-scene { flex-direction: column; align-items: center; gap: 14px; }
+  .victim-card .card-face { width: 64px; height: 90px; }
+  .card-number.victim-label { font-size: 11px; letter-spacing: 2px; }
+  .suspects-row { gap: 12px; }
+  .suspect-card { width: 84px; }
+  .suspect-face { width: 84px; height: 118px; font-size: 28px; }
   .suspect-face .unseen-marker { font-size: 9px; }
 
   .mini-card { width: 50px; height: 70px; font-size: 20px; }
