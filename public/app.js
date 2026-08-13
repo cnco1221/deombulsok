@@ -198,6 +198,7 @@ function renderCrimeScene() {
     if (s.revealed && state.lastRoundResult && state.lastRoundResult.culpritSuspectId === s.id) {
       face.classList.add('culprit');
     }
+    if (known && s.value === 5) face.classList.add('five-card');
     if (canSelectForCheck || canAccuse) {
       face.classList.add('selectable');
       face.setAttribute('role', 'button');
@@ -205,11 +206,9 @@ function renderCrimeScene() {
       if (canSelectForCheck && selectedForCheck.includes(s.id)) face.classList.add('selected');
     }
 
-    let label;
-    if (known) label = s.value === null ? '무지' : s.value;
-    else label = '?';
-    face.innerHTML = `<span>${label}</span>` + (s.unseenMarker ? '<span class="unseen-marker">🚫확인안됨</span>' : '');
-    face.setAttribute('aria-label', `용의자 카드: ${label}`);
+    const plainLabel = known ? (s.value === null ? '무지' : s.value) : '?';
+    face.innerHTML = `<span>${known ? valueLabelHtml(s.value) : '?'}</span>` + (s.unseenMarker ? '<span class="unseen-marker">🚫확인안됨</span>' : '');
+    face.setAttribute('aria-label', `용의자 카드: ${plainLabel}`);
 
     face.addEventListener('click', () => onSuspectClick(s.id, canSelectForCheck, canAccuse));
     face.addEventListener('keydown', (e) => {
@@ -234,7 +233,9 @@ function renderCrimeScene() {
   const sharedBox = document.getElementById('shared-card-box');
   if (state.twoPlayerMode && state.sharedCard) {
     sharedBox.classList.remove('hidden');
-    document.getElementById('shared-card-value').textContent = state.sharedCard.value === null ? '무지' : state.sharedCard.value;
+    const sharedEl = document.getElementById('shared-card-value');
+    sharedEl.innerHTML = valueLabelHtml(state.sharedCard.value);
+    sharedEl.classList.toggle('five-card', state.sharedCard.value === 5);
   } else {
     sharedBox.classList.add('hidden');
   }
@@ -282,7 +283,14 @@ function kv(k, v) {
 function fmtVal(v) {
   if (v === null) return '무지';
   if (v === undefined) return '-';
-  return v;
+  return valueLabelHtml(v);
+}
+
+// 5는 "5가 있으면 최솟값이 범인" 규칙을 뒤집는 특수 카드라 항상 화살표+빨간색으로 강조 표시한다.
+function valueLabelHtml(v) {
+  if (v === null) return '무지';
+  if (v === 5) return '<span class="five-value"><span class="arrow">▶</span>5<span class="arrow">◀</span></span>';
+  return String(v);
 }
 
 function renderActionPanel() {
@@ -381,7 +389,7 @@ function renderOverlay() {
     r.suspects.forEach((s) => {
       const isCulprit = s.id === r.culpritSuspectId;
       html += `<div class="result-suspect${isCulprit ? ' culprit' : ''}">
-        <span>${s.value === null ? '무지' : s.value}</span>
+        <span>${valueLabelHtml(s.value)}</span>
         <span>${isCulprit ? '👉 범인' : ''}</span>
       </div>`;
     });

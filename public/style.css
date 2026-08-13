@@ -13,11 +13,12 @@
 
 * { box-sizing: border-box; }
 
-body {
+html, body {
   margin: 0;
   background: var(--bg);
   color: var(--text);
   min-height: 100vh;
+  overflow-x: hidden;
 }
 
 .hidden { display: none !important; }
@@ -67,7 +68,7 @@ button.primary { background: var(--accent); color: #241a06; border: none; font-w
 button:disabled { opacity: 0.5; cursor: not-allowed; }
 
 .row { display: flex; gap: 8px; margin-bottom: 10px; }
-.join-row input { flex: 1; }
+.join-row input { flex: 1; min-width: 0; }
 
 .error { color: var(--danger); font-size: 13px; min-height: 18px; }
 .hint { color: var(--muted); font-size: 13px; }
@@ -134,6 +135,12 @@ button:disabled { opacity: 0.5; cursor: not-allowed; }
 .suspect-face.selected { border-color: var(--good); box-shadow: 0 0 0 2px var(--good); }
 .suspect-face.known { background: linear-gradient(160deg, #4a4130, #262933); }
 .suspect-face.culprit { border-color: var(--danger); box-shadow: 0 0 12px var(--danger); }
+.suspect-face.five-card, .mini-card.five-card {
+  border-color: var(--danger);
+  box-shadow: 0 0 10px rgba(231, 76, 60, 0.6);
+}
+.five-value { color: var(--danger); font-weight: 800; display: inline-flex; align-items: center; gap: 2px; }
+.five-value .arrow { font-size: 0.55em; color: var(--danger); }
 .suspect-face .unseen-marker {
   position: absolute; top: 4px; right: 4px; font-size: 12px; color: var(--muted);
 }
@@ -180,3 +187,37 @@ button:disabled { opacity: 0.5; cursor: not-allowed; }
 .overlay-box .result-suspect.culprit { color: var(--danger); font-weight: 700; }
 .overlay-box .ranking-row { display: flex; justify-content: space-between; padding: 6px 0; border-bottom: 1px solid var(--border); }
 .overlay-box .ranking-row.first { color: var(--accent); font-weight: 700; }
+
+/* ---------- Mobile ---------- */
+@media (max-width: 600px) {
+  .lobby-wrap { margin: 20px auto; padding: 0 12px; }
+  h1 { font-size: 22px; margin-bottom: 16px; }
+  .card { padding: 14px; }
+
+  .row.join-row { flex-direction: column; }
+
+  button { padding: 12px 14px; font-size: 15px; }
+  input { padding: 12px; font-size: 15px; }
+
+  .game-header {
+    flex-direction: column; align-items: flex-start; gap: 2px;
+    padding: 8px 12px; font-size: 12px;
+  }
+  .players-strip { padding: 8px 12px; gap: 6px; }
+  .player-chip { font-size: 11px; padding: 4px 8px; }
+
+  .board { padding: 16px 8px 4px; }
+  .crime-scene { gap: 12px; }
+  .victim-card .card-face { width: 56px; height: 82px; font-size: 10px; }
+  .suspects-row { gap: 10px; }
+  .suspect-card { width: 76px; }
+  .suspect-face { width: 76px; height: 106px; font-size: 26px; }
+  .suspect-face .unseen-marker { font-size: 9px; }
+
+  .mini-card { width: 50px; height: 70px; font-size: 20px; }
+
+  .info-panel { padding: 12px; gap: 12px; }
+  #action-body button { width: 100%; margin: 4px 0; }
+
+  .overlay-box { padding: 18px; }
+}
