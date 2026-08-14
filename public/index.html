@@ -21,7 +21,7 @@
         <button id="create-room-btn" class="primary">방 만들기</button>
       </div>
       <div class="row join-row">
-        <input id="join-code-input" maxlength="6" placeholder="방 코드 6자리">
+        <input id="join-code-input" maxlength="3" inputmode="numeric" pattern="[0-9]*" placeholder="방 코드 3자리">
         <button id="join-room-btn">입장하기</button>
       </div>
       <p id="lobby-error" class="error"></p>
@@ -53,50 +53,47 @@
     <div id="hdr-finder">발견자: -</div>
   </header>
 
-  <div class="players-strip" id="players-strip"></div>
+  <div class="log-latest" id="log-latest"></div>
 
-  <main class="board">
-    <div class="crime-scene">
-      <div class="victim-card">
-        <div class="card-face back">
-          <svg class="person-svg" viewBox="0 0 100 140" preserveAspectRatio="xMidYMid meet" aria-hidden="true">
-            <path class="person-shape" d="M50 55 C34 55 18 75 14 138 L86 138 C82 75 66 55 50 55 Z"></path>
-            <circle class="person-shape" cx="50" cy="32" r="20"></circle>
-          </svg>
-          <svg class="blood-splatter" viewBox="0 0 100 140" preserveAspectRatio="xMidYMid meet" aria-hidden="true">
-            <path class="blood-pool" d="M6,139 C4,132 14,125 27,128 C35,123 47,125 51,130 C59,123 73,125 79,130 C91,127 97,134 93,140 C70,143 28,143 6,139 Z"></path>
-            <ellipse class="blood-spot" cx="45" cy="70" rx="14" ry="9" transform="rotate(-20 45 70)"></ellipse>
-            <ellipse class="blood-spot" cx="59" cy="80" rx="8" ry="6" transform="rotate(15 59 80)"></ellipse>
-            <ellipse class="blood-spot" cx="35" cy="90" rx="6" ry="9" transform="rotate(-10 35 90)"></ellipse>
-            <circle class="blood-spot" cx="67" cy="59" r="4"></circle>
-            <circle class="blood-spot" cx="27" cy="65" r="3"></circle>
-            <path class="blood-drip" d="M47,84 C46,94 44,104 46,113 C48,104 49,94 47,84 Z"></path>
-            <path class="blood-drip" d="M58,88 C57,96 56,102 58,109 C59,101 59,94 58,88 Z"></path>
-          </svg>
-          <span class="card-number victim-label">피해자</span>
+  <div class="table-area" id="table-area">
+    <div class="players-ring" id="players-strip"></div>
+
+    <main class="board">
+      <div class="crime-scene">
+        <div class="victim-card">
+          <div class="card-face back">
+            <svg class="person-svg" viewBox="0 0 100 140" preserveAspectRatio="xMidYMid meet" aria-hidden="true">
+              <path class="person-shape" d="M27,48 L73,48 Q78,48 78,53 L78,131 Q78,136 73,136 L56,136 L56,100 L44,100 L44,136 L27,136 Q22,136 22,131 L22,53 Q22,48 27,48 Z"></path>
+              <circle class="person-shape" cx="50" cy="30" r="18"></circle>
+            </svg>
+            <svg class="blood-splatter" viewBox="0 0 100 140" preserveAspectRatio="xMidYMid meet" aria-hidden="true">
+              <path class="blood-pool" d="M6,139 C4,132 14,125 27,128 C35,123 47,125 51,130 C59,123 73,125 79,130 C91,127 97,134 93,140 C70,143 28,143 6,139 Z"></path>
+              <ellipse class="blood-spot" cx="45" cy="70" rx="14" ry="9" transform="rotate(-20 45 70)"></ellipse>
+              <ellipse class="blood-spot" cx="59" cy="80" rx="8" ry="6" transform="rotate(15 59 80)"></ellipse>
+              <ellipse class="blood-spot" cx="35" cy="90" rx="6" ry="9" transform="rotate(-10 35 90)"></ellipse>
+              <circle class="blood-spot" cx="67" cy="59" r="4"></circle>
+              <circle class="blood-spot" cx="27" cy="65" r="3"></circle>
+              <path class="blood-drip" d="M47,84 C46,94 44,104 46,113 C48,104 49,94 47,84 Z"></path>
+              <path class="blood-drip" d="M58,88 C57,96 56,102 58,109 C59,101 59,94 58,88 Z"></path>
+            </svg>
+            <span class="card-number victim-label">피해자</span>
+          </div>
         </div>
+        <div class="suspects-row" id="suspects-row"></div>
       </div>
-      <div class="suspects-row" id="suspects-row"></div>
-    </div>
 
-    <div id="shared-card-box" class="hidden">
-      <div class="label">공개 카드 (둘 다 확인 가능)</div>
-      <div class="mini-card" id="shared-card-value"></div>
-    </div>
-  </main>
+      <div id="shared-card-box" class="hidden">
+        <div class="label">공개 카드 (둘 다 확인 가능)</div>
+        <div class="mini-card" id="shared-card-value"></div>
+      </div>
+    </main>
+  </div>
 
-  <div class="info-panel">
-    <div class="my-info card">
-      <h3>내 정보</h3>
-      <div id="my-info-body"></div>
-    </div>
-    <div class="action-panel card">
-      <h3 id="phase-title">-</h3>
+  <div class="bottom-bar" id="bottom-bar">
+    <div class="my-info-inline" id="my-info-body"></div>
+    <div class="action-row">
+      <span class="phase-title" id="phase-title">-</span>
       <div id="action-body"></div>
-    </div>
-    <div class="log-panel card">
-      <h3>진행 로그</h3>
-      <div id="log-body"></div>
     </div>
   </div>
 </div>

@@ -166,26 +166,41 @@ function renderGame() {
   renderOverlay();
 }
 
+// Seats players in a circle around the table (crime scene), like sitting around it,
+// instead of a single row — position is a percentage point on an ellipse inscribed in .table-area.
 function renderPlayersStrip() {
-  const strip = document.getElementById('players-strip');
-  strip.innerHTML = '';
-  state.players.forEach((p) => {
+  const ring = document.getElementById('players-strip');
+  ring.innerHTML = '';
+  const n = state.players.length;
+  // Keep the ring's edge points far enough from the container border that a chip's own
+  // rendered width (clamped via CSS text-overflow) never pushes past the viewport.
+  const isMobile = window.innerWidth <= 600;
+  const RX = isMobile ? 33 : 44; // ellipse radius, % of table-area width
+  const RY = isMobile ? 37 : 42; // ellipse radius, % of table-area height
+  state.players.forEach((p, i) => {
+    const angle = (360 / n) * i - 90; // start at 12 o'clock, go clockwise
+    const rad = (angle * Math.PI) / 180;
+    const x = 50 + RX * Math.cos(rad);
+    const y = 50 + RY * Math.sin(rad);
+
     const el = document.createElement('div');
     const isFinder = p.id === state.finderId;
     const isTurn = p.id === state.turnPlayerId;
     el.className = 'player-chip' + (isFinder ? ' finder' : '') + (isTurn ? ' turn' : '') + (!p.isBot && !p.connected ? ' disconnected' : '');
+    el.style.left = x + '%';
+    el.style.top = y + '%';
     el.innerHTML = `<span class="dot" style="background:${p.color}"></span>
-      <span>${escapeHtml(p.nickname)}${p.id === myPlayerId ? ' (나)' : ''}${!p.isBot && !p.connected ? ' 🔌' : ''}</span>
+      <span class="name">${escapeHtml(p.nickname)}${p.id === myPlayerId ? ' (나)' : ''}${!p.isBot && !p.connected ? ' 🔌' : ''}</span>
       <span class="chips">🕵️${p.detectiveChips} ❌${p.mistakeChips}</span>`;
-    strip.appendChild(el);
+    ring.appendChild(el);
   });
 }
 
 // White person-silhouette card face with the value centered on it (used for suspect/victim/shared cards).
 function personCardMarkup(numberHtml) {
   return `<svg class="person-svg" viewBox="0 0 100 140" preserveAspectRatio="xMidYMid meet" aria-hidden="true">
-      <path class="person-shape" d="M50 55 C34 55 18 75 14 138 L86 138 C82 75 66 55 50 55 Z"></path>
-      <circle class="person-shape" cx="50" cy="32" r="20"></circle>
+      <path class="person-shape" d="M27,48 L73,48 Q78,48 78,53 L78,131 Q78,136 73,136 L56,136 L56,100 L44,100 L44,136 L27,136 Q22,136 22,131 L22,53 Q22,48 27,48 Z"></path>
+      <circle class="person-shape" cx="50" cy="30" r="18"></circle>
     </svg>
     <span class="card-number">${numberHtml}</span>`;
 }
@@ -215,7 +230,7 @@ function renderCrimeScene() {
       if (canSelectForCheck && selectedForCheck.includes(s.id)) face.classList.add('selected');
     }
 
-    const plainLabel = known ? (s.value === null ? '무지' : s.value) : '?';
+    const plainLabel = known ? (s.value === null ? 'X' : s.value) : '?';
     face.innerHTML = personCardMarkup(known ? valueLabelHtml(s.value) : '?') + (s.unseenMarker ? '<span class="unseen-marker">🚫확인안됨</span>' : '');
     face.setAttribute('aria-label', `용의자 카드: ${plainLabel}`);
 
@@ -290,14 +305,14 @@ function kv(k, v) {
   return `<div class="kv"><span class="k">${k}</span><span class="v">${v}</span></div>`;
 }
 function fmtVal(v) {
-  if (v === null) return '무지';
+  if (v === null) return 'X';
   if (v === undefined) return '-';
   return valueLabelHtml(v);
 }
 
 // 5는 "5가 있으면 최솟값이 범인" 규칙을 뒤집는 특수 카드라 항상 둥근 화살표 고리+빨간색으로 강조 표시한다.
 function valueLabelHtml(v) {
-  if (v === null) return '무지';
+  if (v === null) return 'X';
   if (v === 5) {
     return `<span class="five-value">
       <svg class="five-ring" viewBox="0 0 40 40" aria-hidden="true">
@@ -317,13 +332,11 @@ function renderActionPanel() {
   body.innerHTML = '';
 
   if (state.phase === 'passCards') {
-    title.textContent = '카드 확인';
     const acked = state.ackedPlayers.includes(myPlayerId);
-    body.innerHTML = `<p>내 카드를 확인했으면 아래 버튼을 눌러 왼쪽 사람에게 전달하세요.</p>
-      <p>${state.ackedPlayers.length} / ${state.players.length} 명 확인 완료</p>`;
+    title.textContent = `카드 확인 (${state.ackedPlayers.length}/${state.players.length})`;
     const btn = document.createElement('button');
     btn.className = 'primary';
-    btn.textContent = acked ? '확인 완료' : '확인했어요';
+    btn.textContent = '확인';
     btn.disabled = acked;
     btn.addEventListener('click', () => socket.emit('game:ackCard'));
     body.appendChild(btn);
@@ -337,49 +350,38 @@ function renderActionPanel() {
 
     if (!myTurn) {
       const actingPlayer = state.players.find((p) => p.id === (state.phase === 'finderCheck' ? state.finderId : state.turnPlayerId));
-      title.textContent = '대기 중';
-      body.innerHTML = `<p>${actingPlayer ? escapeHtml(actingPlayer.nickname) : '다른 참가자'}의 차례를 기다리는 중...</p>`;
+      title.textContent = `${actingPlayer ? escapeHtml(actingPlayer.nickname) : '다른 참가자'} 차례`;
       return;
     }
 
     if (iAlreadyAccused) {
-      title.textContent = '완료';
-      body.innerHTML = '<p>당신의 차례가 끝났습니다. 다른 참가자를 기다리세요.</p>';
+      title.textContent = '대기 중';
       return;
     }
 
     if (seenCount < 2) {
+      title.textContent = state.phase === 'finderCheck' ? `용의자 선택 (${selectedForCheck.length}/2)` : '용의자 확인';
+      const btn = document.createElement('button');
+      btn.className = 'primary';
+      btn.textContent = '확인';
       if (state.phase === 'finderCheck') {
-        title.textContent = '발견자: 용의자 확인 (2장 선택)';
-        body.innerHTML = `<p>용의자 카드 중 2장을 클릭해서 선택하세요. (${selectedForCheck.length}/2)</p>`;
-        const btn = document.createElement('button');
-        btn.className = 'primary';
-        btn.textContent = '확인하기';
         btn.disabled = selectedForCheck.length !== 2;
         btn.addEventListener('click', () => {
           socket.emit('game:checkSuspects', { suspectIds: selectedForCheck.slice() });
         });
-        body.appendChild(btn);
       } else {
-        title.textContent = '용의자 확인';
-        body.innerHTML = `<p>직전 사람이 고발한 카드를 제외한 나머지 2장을 확인합니다.</p>`;
-        const btn = document.createElement('button');
-        btn.className = 'primary';
-        btn.textContent = '확인하기';
         btn.addEventListener('click', () => socket.emit('game:checkSuspects', {}));
-        body.appendChild(btn);
       }
+      body.appendChild(btn);
       return;
     }
 
-    title.textContent = '고발: 범인이라 생각하는 용의자를 선택';
-    body.innerHTML = `<p>위 용의자 카드를 클릭해서 탐정 칩을 놓으세요. (미확인 카드에 놓아도 됩니다 — 블러핑 가능)</p>`;
+    title.textContent = '고발할 카드 선택';
     return;
   }
 
   if (state.phase === 'result') {
     title.textContent = '진상 해명';
-    body.innerHTML = '<p>결과 팝업을 확인하세요.</p>';
     return;
   }
 
@@ -391,9 +393,9 @@ function renderActionPanel() {
 }
 
 function renderLog() {
-  const body = document.getElementById('log-body');
-  body.innerHTML = state.log.map((l) => `<div>${escapeHtml(l.text)}</div>`).join('');
-  body.scrollTop = body.scrollHeight;
+  const latest = document.getElementById('log-latest');
+  const last = state.log[state.log.length - 1];
+  latest.textContent = last ? last.text : '';
 }
 
 function renderOverlay() {

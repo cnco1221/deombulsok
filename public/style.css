@@ -93,22 +93,39 @@ button:disabled { opacity: 0.5; cursor: not-allowed; }
   font-size: 14px;
 }
 
-.players-strip {
-  display: flex; gap: 10px; padding: 10px 20px; flex-wrap: wrap;
-  background: var(--panel2);
+.log-latest {
+  padding: 4px 16px;
+  font-size: 12px; color: var(--muted);
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  max-width: 100%;
+  min-height: 1.4em;
 }
+
+/* Players seated in a circle around the table instead of a row */
+.table-area {
+  position: relative;
+  display: flex; align-items: center; justify-content: center;
+  min-height: 380px;
+  max-width: 640px;
+  margin: 0 auto;
+  padding: 50px 76px;
+}
+.players-ring { position: absolute; inset: 0; pointer-events: none; }
 .player-chip {
+  position: absolute; transform: translate(-50%, -50%);
   display: flex; align-items: center; gap: 6px;
   padding: 6px 10px; border-radius: 20px; background: var(--panel);
-  border: 2px solid transparent; font-size: 13px;
+  border: 2px solid transparent; font-size: 12px; white-space: nowrap;
+  pointer-events: auto;
 }
 .player-chip.finder { border-color: var(--accent); }
 .player-chip.turn { box-shadow: 0 0 0 2px var(--good); }
 .player-chip.disconnected { opacity: 0.55; }
-.player-chip .dot { width: 10px; height: 10px; border-radius: 50%; }
-.player-chip .chips { color: var(--muted); font-size: 11px; }
+.player-chip .dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+.player-chip .name { max-width: 80px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.player-chip .chips { color: var(--muted); font-size: 11px; flex-shrink: 0; }
 
-.board { padding: 24px 20px 10px; text-align: center; }
+.board { position: relative; z-index: 1; padding: 10px 20px; text-align: center; }
 
 .crime-scene { display: flex; justify-content: center; gap: 24px; align-items: flex-end; flex-wrap: wrap; }
 
@@ -181,20 +198,20 @@ button:disabled { opacity: 0.5; cursor: not-allowed; }
   width: 60px; height: 84px; position: relative; font-size: 22px;
 }
 
-.info-panel {
-  display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px;
-  padding: 20px; max-width: 1100px; margin: 0 auto;
+/* Hand + confirm button, pinned to the bottom of the screen */
+#screen-game { padding-bottom: 76px; }
+.bottom-bar {
+  position: fixed; left: 0; right: 0; bottom: 0; z-index: 15;
+  background: var(--panel); border-top: 1px solid var(--border);
+  padding: 10px 16px;
+  display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap;
 }
-@media (max-width: 900px) { .info-panel { grid-template-columns: 1fr; } }
-
-.my-info .kv { display: flex; justify-content: space-between; padding: 4px 0; font-size: 14px; }
-.my-info .kv .k { color: var(--muted); }
-
-#action-body button { margin: 4px 4px 4px 0; }
-#action-body .accuse-options { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 8px; }
-
-.log-panel { max-height: 220px; overflow-y: auto; }
-#log-body { font-size: 12px; color: var(--muted); display: flex; flex-direction: column; gap: 4px; }
+.my-info-inline { display: flex; gap: 14px; flex-wrap: wrap; font-size: 13px; }
+.my-info-inline .kv { display: flex; gap: 5px; align-items: baseline; }
+.my-info-inline .kv .k { color: var(--muted); font-size: 11px; }
+.action-row { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.phase-title { font-size: 12px; color: var(--muted); white-space: nowrap; }
+#action-body button { margin: 0; }
 
 /* ---------- Overlay ---------- */
 .overlay {
@@ -227,10 +244,14 @@ button:disabled { opacity: 0.5; cursor: not-allowed; }
     flex-direction: column; align-items: flex-start; gap: 2px;
     padding: 8px 12px; font-size: 12px;
   }
-  .players-strip { padding: 8px 12px; gap: 6px; }
-  .player-chip { font-size: 11px; padding: 4px 8px; }
+  .log-latest { padding: 2px 12px; font-size: 11px; }
 
-  .board { padding: 16px 8px 4px; }
+  .table-area { min-height: 430px; padding: 46px 34px; max-width: 100%; }
+  .player-chip { font-size: 10px; padding: 4px 7px; gap: 4px; }
+  .player-chip .name { max-width: 50px; }
+  .player-chip .chips { font-size: 9px; }
+
+  .board { padding: 8px 4px; }
   .crime-scene { flex-direction: column; align-items: center; gap: 14px; }
   .victim-card .card-face { width: 64px; height: 90px; }
   .card-number.victim-label { font-size: 11px; letter-spacing: 2px; }
@@ -241,8 +262,11 @@ button:disabled { opacity: 0.5; cursor: not-allowed; }
 
   .mini-card { width: 50px; height: 70px; font-size: 20px; }
 
-  .info-panel { padding: 12px; gap: 12px; }
-  #action-body button { width: 100%; margin: 4px 0; }
+  #screen-game { padding-bottom: 96px; }
+  .bottom-bar { flex-direction: column; align-items: stretch; padding: 8px 12px; }
+  .my-info-inline { justify-content: center; }
+  .action-row { justify-content: center; }
+  #action-body button { flex: 1; }
 
   .overlay-box { padding: 18px; }
 }
