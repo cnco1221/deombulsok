@@ -48,9 +48,7 @@
 
 <div id="screen-game" class="screen hidden">
   <header class="game-header">
-    <div>방 코드 <b id="hdr-room-code"></b></div>
     <div>라운드 <b id="hdr-round"></b> / <span id="hdr-max-round"></span></div>
-    <div id="hdr-finder">발견자: -</div>
   </header>
 
   <div class="log-latest" id="log-latest"></div>
@@ -62,12 +60,12 @@
       <div class="crime-scene">
         <div class="victim-card">
           <div class="card-face back">
-            <svg class="person-svg" viewBox="0 0 100 140" preserveAspectRatio="xMidYMid meet" aria-hidden="true">
-              <path class="person-shape" d="M27,48 L73,48 Q78,48 78,53 L78,131 Q78,136 73,136 L56,136 L56,100 L44,100 L44,136 L27,136 Q22,136 22,131 L22,53 Q22,48 27,48 Z"></path>
+            <svg class="person-svg" viewBox="0 0 100 170" preserveAspectRatio="xMidYMid meet" aria-hidden="true">
+              <path class="person-shape" d="M27,48 L73,48 Q78,48 78,53 L78,160 Q78,165 73,165 L56,165 L56,100 L44,100 L44,165 L27,165 Q22,165 22,160 L22,53 Q22,48 27,48 Z"></path>
               <circle class="person-shape" cx="50" cy="30" r="18"></circle>
             </svg>
-            <svg class="blood-splatter" viewBox="0 0 100 140" preserveAspectRatio="xMidYMid meet" aria-hidden="true">
-              <path class="blood-pool" d="M6,139 C4,132 14,125 27,128 C35,123 47,125 51,130 C59,123 73,125 79,130 C91,127 97,134 93,140 C70,143 28,143 6,139 Z"></path>
+            <svg class="blood-splatter" viewBox="0 0 100 170" preserveAspectRatio="xMidYMid meet" aria-hidden="true">
+              <path class="blood-pool" d="M6,165 C4,158 14,151 27,154 C35,149 47,151 51,156 C59,149 73,151 79,156 C91,153 97,160 93,166 C70,169 28,169 6,165 Z"></path>
               <ellipse class="blood-spot" cx="45" cy="70" rx="14" ry="9" transform="rotate(-20 45 70)"></ellipse>
               <ellipse class="blood-spot" cx="59" cy="80" rx="8" ry="6" transform="rotate(15 59 80)"></ellipse>
               <ellipse class="blood-spot" cx="35" cy="90" rx="6" ry="9" transform="rotate(-10 35 90)"></ellipse>
@@ -86,6 +84,8 @@
         <div class="label">공개 카드 (둘 다 확인 가능)</div>
         <div class="mini-card" id="shared-card-value"></div>
       </div>
+
+      <div id="pass-card-view" class="pass-card-view hidden"></div>
     </main>
   </div>
 

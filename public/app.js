@@ -152,18 +152,46 @@ function renderGame() {
   screenLobby.classList.add('hidden');
   screenGame.classList.remove('hidden');
 
-  document.getElementById('hdr-room-code').textContent = state.code;
   document.getElementById('hdr-round').textContent = state.round;
   document.getElementById('hdr-max-round').textContent = state.maxRounds;
-  const finder = state.players.find((p) => p.id === state.finderId);
-  document.getElementById('hdr-finder').textContent = `발견자: ${finder ? finder.nickname : '-'}`;
 
   renderPlayersStrip();
+  renderPassCardView();
   renderCrimeScene();
   renderMyInfo();
   renderActionPanel();
   renderLog();
   renderOverlay();
+}
+
+// Phase 1 (card pass): show my own card as a big person-card to inspect, then once I've
+// confirmed, show who it went to instead of the crime scene (which isn't checkable yet anyway).
+function renderPassCardView() {
+  const view = document.getElementById('pass-card-view');
+  const crimeSceneEl = document.querySelector('.crime-scene');
+
+  if (state.phase !== 'passCards') {
+    view.classList.add('hidden');
+    view.innerHTML = '';
+    crimeSceneEl.classList.remove('hidden');
+    return;
+  }
+
+  crimeSceneEl.classList.add('hidden');
+  view.classList.remove('hidden');
+
+  const acked = state.ackedPlayers.includes(myPlayerId);
+  if (!acked) {
+    view.innerHTML = `<div class="suspect-face big-card">${personCardMarkup(valueLabelHtml(state.myKnowledge.ownCardValue))}</div>
+      <div class="pass-hint">내 카드를 확인하세요</div>`;
+  } else {
+    const myIndex = state.players.findIndex((p) => p.id === myPlayerId);
+    const next = myIndex >= 0 ? state.players[(myIndex + 1) % state.players.length] : null;
+    view.innerHTML = `<div class="pass-done">
+      <div class="pass-check">✅</div>
+      <div>왼쪽 사람${next ? ` (${escapeHtml(next.nickname)})` : ''}에게 넘겼습니다</div>
+    </div>`;
+  }
 }
 
 // Seats players in a circle around the table (crime scene), like sitting around it,
@@ -198,8 +226,8 @@ function renderPlayersStrip() {
 
 // White person-silhouette card face with the value centered on it (used for suspect/victim/shared cards).
 function personCardMarkup(numberHtml) {
-  return `<svg class="person-svg" viewBox="0 0 100 140" preserveAspectRatio="xMidYMid meet" aria-hidden="true">
-      <path class="person-shape" d="M27,48 L73,48 Q78,48 78,53 L78,131 Q78,136 73,136 L56,136 L56,100 L44,100 L44,136 L27,136 Q22,136 22,131 L22,53 Q22,48 27,48 Z"></path>
+  return `<svg class="person-svg" viewBox="0 0 100 170" preserveAspectRatio="xMidYMid meet" aria-hidden="true">
+      <path class="person-shape" d="M27,48 L73,48 Q78,48 78,53 L78,160 Q78,165 73,165 L56,165 L56,100 L44,100 L44,165 L27,165 Q22,165 22,160 L22,53 Q22,48 27,48 Z"></path>
       <circle class="person-shape" cx="50" cy="30" r="18"></circle>
     </svg>
     <span class="card-number">${numberHtml}</span>`;
@@ -291,12 +319,6 @@ function renderMyInfo() {
   html += kv('내 카드', fmtVal(k.ownCardValue));
   if (!state.twoPlayerMode && state.phase !== 'passCards') {
     html += kv('전달받은 카드', fmtVal(k.receivedCardValue));
-  }
-  const seenEntries = Object.entries(k.seenSuspects || {});
-  if (seenEntries.length) {
-    seenEntries.forEach(([sid, val], i) => {
-      html += kv(`확인한 용의자 ${i + 1}`, fmtVal(val));
-    });
   }
   body.innerHTML = html;
 }

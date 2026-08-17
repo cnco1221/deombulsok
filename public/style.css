@@ -88,9 +88,9 @@ button:disabled { opacity: 0.5; cursor: not-allowed; }
 
 /* ---------- Game screen ---------- */
 .game-header {
-  display: flex; justify-content: space-between; padding: 10px 20px;
+  display: flex; justify-content: center; padding: 5px 16px;
   background: var(--panel); border-bottom: 1px solid var(--border);
-  font-size: 14px;
+  font-size: 12px;
 }
 
 .log-latest {
@@ -105,7 +105,7 @@ button:disabled { opacity: 0.5; cursor: not-allowed; }
 .table-area {
   position: relative;
   display: flex; align-items: center; justify-content: center;
-  min-height: 380px;
+  min-height: 430px;
   max-width: 640px;
   margin: 0 auto;
   padding: 50px 76px;
@@ -152,7 +152,7 @@ button:disabled { opacity: 0.5; cursor: not-allowed; }
 .blood-splatter .blood-pool { fill: #5c0b0b; opacity: 0.92; }
 
 .victim-card .card-face {
-  width: 80px; height: 116px; position: relative;
+  width: 80px; height: 136px; position: relative;
   display: flex; align-items: center; justify-content: center;
 }
 
@@ -162,11 +162,12 @@ button:disabled { opacity: 0.5; cursor: not-allowed; }
   width: 100px; display: flex; flex-direction: column; align-items: center; gap: 8px;
 }
 .suspect-face {
-  width: 100px; height: 140px;
+  width: 100px; height: 170px;
   display: flex; align-items: center; justify-content: center;
   font-size: 34px; position: relative;
   transition: transform 0.2s;
 }
+.suspect-face.big-card { width: 130px; height: 221px; font-size: 44px; margin: 0 auto; }
 .suspect-face.selectable { cursor: pointer; }
 .suspect-face.selectable .person-shape { stroke: var(--accent); stroke-width: 3; }
 .suspect-face.selectable:hover { transform: translateY(-4px); }
@@ -195,8 +196,14 @@ button:disabled { opacity: 0.5; cursor: not-allowed; }
 #shared-card-box .label { color: var(--muted); font-size: 13px; margin-bottom: 6px; }
 .mini-card {
   display: inline-flex; align-items: center; justify-content: center;
-  width: 60px; height: 84px; position: relative; font-size: 22px;
+  width: 60px; height: 102px; position: relative; font-size: 22px;
 }
+
+/* Phase 1: my card shown big, then a "passed to" confirmation */
+.pass-card-view { display: flex; flex-direction: column; align-items: center; gap: 14px; padding: 10px 0 20px; }
+.pass-hint { color: var(--muted); font-size: 13px; }
+.pass-done { text-align: center; color: var(--good); font-size: 15px; }
+.pass-check { font-size: 40px; margin-bottom: 8px; }
 
 /* Hand + confirm button, pinned to the bottom of the screen */
 #screen-game { padding-bottom: 76px; }
@@ -240,27 +247,25 @@ button:disabled { opacity: 0.5; cursor: not-allowed; }
   button { padding: 12px 14px; font-size: 15px; }
   input { padding: 12px; font-size: 15px; }
 
-  .game-header {
-    flex-direction: column; align-items: flex-start; gap: 2px;
-    padding: 8px 12px; font-size: 12px;
-  }
+  .game-header { padding: 5px 12px; font-size: 11px; }
   .log-latest { padding: 2px 12px; font-size: 11px; }
 
-  .table-area { min-height: 430px; padding: 46px 34px; max-width: 100%; }
+  .table-area { min-height: 480px; padding: 46px 34px; max-width: 100%; }
   .player-chip { font-size: 10px; padding: 4px 7px; gap: 4px; }
   .player-chip .name { max-width: 50px; }
   .player-chip .chips { font-size: 9px; }
 
   .board { padding: 8px 4px; }
   .crime-scene { flex-direction: column; align-items: center; gap: 14px; }
-  .victim-card .card-face { width: 64px; height: 90px; }
+  .victim-card .card-face { width: 64px; height: 109px; }
   .card-number.victim-label { font-size: 11px; letter-spacing: 2px; }
   .suspects-row { gap: 12px; }
   .suspect-card { width: 84px; }
-  .suspect-face { width: 84px; height: 118px; font-size: 28px; }
+  .suspect-face { width: 84px; height: 143px; font-size: 28px; }
+  .suspect-face.big-card { width: 110px; height: 187px; font-size: 38px; }
   .suspect-face .unseen-marker { font-size: 9px; }
 
-  .mini-card { width: 50px; height: 70px; font-size: 20px; }
+  .mini-card { width: 50px; height: 85px; font-size: 20px; }
 
   #screen-game { padding-bottom: 96px; }
   .bottom-bar { flex-direction: column; align-items: stretch; padding: 8px 12px; }
