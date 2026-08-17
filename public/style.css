@@ -152,9 +152,12 @@ button:disabled { opacity: 0.5; cursor: not-allowed; }
 .blood-splatter .blood-drip { fill: #7a0f0f; opacity: 0.88; }
 .blood-splatter .blood-pool { fill: #5c0b0b; opacity: 0.92; }
 
+/* Victim lies on their side — rotate the card, swap the footprint it reserves in the row */
+.victim-card { width: 136px; height: 80px; display: flex; align-items: center; justify-content: center; }
 .victim-card .card-face {
   width: 80px; height: 136px; position: relative;
   display: flex; align-items: center; justify-content: center;
+  transform: rotate(90deg);
 }
 
 .suspects-row { display: flex; gap: 18px; flex-wrap: wrap; justify-content: center; }
@@ -168,7 +171,6 @@ button:disabled { opacity: 0.5; cursor: not-allowed; }
   font-size: 34px; position: relative;
   transition: transform 0.2s;
 }
-.suspect-face.big-card { width: 130px; height: 221px; font-size: 44px; margin: 0 auto; }
 .suspect-face.selectable { cursor: pointer; }
 .suspect-face.selectable .person-shape { stroke: var(--accent); stroke-width: 3; }
 .suspect-face.selectable:hover { transform: translateY(-4px); }
@@ -207,12 +209,12 @@ button:disabled { opacity: 0.5; cursor: not-allowed; }
   width: 60px; height: 102px; position: relative; font-size: 22px;
 }
 
-/* Phase 1: my card shown big while I inspect it */
-.pass-card-view { display: flex; flex-direction: column; align-items: center; gap: 14px; padding: 10px 0 20px; }
-.pass-hint { color: var(--muted); font-size: 13px; }
-
-/* My hand: own card + (once dealt) the card passed to me, shown right on the board */
-.my-hand { display: flex; justify-content: center; gap: 28px; padding: 14px 0 4px; }
+/* My hand: a separate tray at the bottom for my own card + the one passed to me */
+.my-hand {
+  display: flex; justify-content: center; gap: 28px;
+  padding: 16px 16px 20px; margin-top: 8px;
+  background: var(--panel2); border-top: 1px solid var(--border);
+}
 .hand-slot { display: flex; flex-direction: column; align-items: center; gap: 6px; }
 .hand-label { color: var(--muted); font-size: 12px; }
 
@@ -256,19 +258,20 @@ button:disabled { opacity: 0.5; cursor: not-allowed; }
   .game-header { padding: 5px 12px; font-size: 11px; }
   .log-latest { padding: 2px 12px; font-size: 11px; }
 
-  .table-area { min-height: 480px; padding: 46px 34px; max-width: 100%; }
-  .player-chip { font-size: 10px; padding: 4px 7px; gap: 4px; }
-  .player-chip .name { max-width: 50px; }
-  .player-chip .chips { font-size: 9px; }
+  .table-area { min-height: 480px; padding: 40px 30px; max-width: 100%; }
+  .player-chip { font-size: 9px; padding: 3px 6px; gap: 3px; border-radius: 10px; }
+  .player-chip .name { max-width: 42px; }
+  .player-chip .chips { font-size: 8px; }
+  .player-chip .dot { width: 8px; height: 8px; }
 
   .board { padding: 8px 4px; }
   .crime-scene { flex-direction: column; align-items: center; gap: 14px; }
+  .victim-card { width: 109px; height: 64px; }
   .victim-card .card-face { width: 64px; height: 109px; }
   .card-number.victim-label { font-size: 11px; letter-spacing: 2px; }
-  .suspects-row { gap: 12px; }
-  .suspect-card { width: 84px; }
-  .suspect-face { width: 84px; height: 143px; font-size: 28px; }
-  .suspect-face.big-card { width: 110px; height: 187px; font-size: 38px; }
+  .suspects-row { gap: 9px; }
+  .suspect-card { width: 72px; }
+  .suspect-face { width: 72px; height: 122px; font-size: 24px; }
   .suspect-face .unseen-marker { font-size: 9px; }
 
   .mini-card { width: 50px; height: 85px; font-size: 20px; }

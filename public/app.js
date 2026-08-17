@@ -156,34 +156,11 @@ function renderGame() {
   document.getElementById('hdr-max-round').textContent = state.maxRounds;
 
   renderPlayersStrip();
-  renderPassCardView();
   renderCrimeScene();
   renderMyHand();
   renderActionPanel();
   renderLog();
   renderOverlay();
-}
-
-// Phase 1 (card pass): show my own card as a big person-card to inspect first. The moment I
-// confirm it, the board (crime scene + my hand) takes over — no separate "passed to" screen,
-// since the received card slot in my-hand shows who/what to expect instead.
-function renderPassCardView() {
-  const view = document.getElementById('pass-card-view');
-  const crimeSceneEl = document.querySelector('.crime-scene');
-  const myAcked = state.ackedPlayers.includes(myPlayerId);
-  const stillWaitingOnMe = state.phase === 'passCards' && !myAcked;
-
-  if (!stillWaitingOnMe) {
-    view.classList.add('hidden');
-    view.innerHTML = '';
-    crimeSceneEl.classList.remove('hidden');
-    return;
-  }
-
-  crimeSceneEl.classList.add('hidden');
-  view.classList.remove('hidden');
-  view.innerHTML = `<div class="suspect-face big-card">${personCardMarkup(valueLabelHtml(state.myKnowledge.ownCardValue))}</div>
-    <div class="pass-hint">내 카드를 확인하세요</div>`;
 }
 
 // Seats players in a circle around the table (crime scene), like sitting around it,
@@ -195,8 +172,8 @@ function renderPlayersStrip() {
   // Keep the ring's edge points far enough from the container border that a chip's own
   // rendered width (clamped via CSS text-overflow) never pushes past the viewport.
   const isMobile = window.innerWidth <= 600;
-  const RX = isMobile ? 33 : 44; // ellipse radius, % of table-area width
-  const RY = isMobile ? 37 : 42; // ellipse radius, % of table-area height
+  const RX = isMobile ? 42 : 44; // ellipse radius, % of table-area width
+  const RY = isMobile ? 43 : 42; // ellipse radius, % of table-area height
   const myIndex = state.players.findIndex((p) => p.id === myPlayerId);
   state.players.forEach((p, i) => {
     // Rotate the ring so my own seat always lands at 90° (bottom-center), others fanning
@@ -322,19 +299,17 @@ function isMyActionTurn() {
 function renderMyHand() {
   const el = document.getElementById('my-hand');
   const k = state.myKnowledge;
-  const myAcked = state.ackedPlayers.includes(myPlayerId);
-  const showable = k && (state.phase !== 'passCards' || myAcked);
-  if (!showable) {
+  if (!k) {
     el.classList.add('hidden');
     el.innerHTML = '';
     return;
   }
   el.classList.remove('hidden');
-  let html = handSlotHtml('내 카드', valueLabelHtml(k.ownCardValue));
+  let html = handSlotHtml('첫번째 단서', valueLabelHtml(k.ownCardValue));
   if (!state.twoPlayerMode) {
     // Still waiting on the others to pass theirs — nothing to show yet.
     const receivedHtml = state.phase === 'passCards' ? '?' : valueLabelHtml(k.receivedCardValue);
-    html += handSlotHtml('전달받은 카드', receivedHtml);
+    html += handSlotHtml('두번째 단서', receivedHtml);
   }
   el.innerHTML = html;
 }
