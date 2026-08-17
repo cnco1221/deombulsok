@@ -110,6 +110,7 @@ button:disabled { opacity: 0.5; cursor: not-allowed; }
   font-size: 11px; color: var(--muted); text-align: center;
   white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
   min-height: 1.3em;
+  background: var(--bg);
   border-bottom: 1px solid var(--border);
 }
 
@@ -234,9 +235,10 @@ button:disabled { opacity: 0.5; cursor: not-allowed; }
 }
 .hand-slot { display: flex; flex-direction: column; align-items: center; gap: 6px; }
 .hand-label { color: var(--muted); font-size: 12px; }
+.hand-slot .mini-card { width: 76px; height: 110px; font-size: 28px; }
 
 /* Fixed bottom panel: turn order + confirm button on top, hand tray right below it */
-#screen-game { padding-bottom: 150px; }
+#screen-game { padding-bottom: 175px; }
 .bottom-bar {
   position: fixed; left: 0; right: 0; bottom: 0; z-index: 15;
   background: var(--panel); border-top: 1px solid var(--border);
@@ -296,9 +298,10 @@ button:disabled { opacity: 0.5; cursor: not-allowed; }
   .accuse-btn { padding: 4px 10px; font-size: 10.5px; }
 
   .mini-card { width: 50px; height: 72px; font-size: 20px; }
+  .hand-slot .mini-card { width: 64px; height: 93px; font-size: 24px; }
   .my-hand { gap: 16px; padding: 8px 12px 12px; }
 
-  #screen-game { padding-bottom: 130px; }
+  #screen-game { padding-bottom: 155px; }
   .action-row { padding: 6px 12px; }
   #action-body button { padding: 5px 16px; font-size: 12px; }
 
