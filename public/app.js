@@ -53,6 +53,19 @@ document.getElementById('start-game-btn').addEventListener('click', () => {
   socket.emit('game:start');
 });
 
+// Fullscreen gives the board more real room to work with than trying to shrink everything to fit.
+const fullscreenBtn = document.getElementById('fullscreen-btn');
+fullscreenBtn.addEventListener('click', () => {
+  if (document.fullscreenElement) {
+    document.exitFullscreen();
+  } else {
+    document.documentElement.requestFullscreen().catch(() => {});
+  }
+});
+document.addEventListener('fullscreenchange', () => {
+  fullscreenBtn.title = document.fullscreenElement ? '전체화면 종료' : '전체화면';
+});
+
 socket.on('room:error', ({ error }) => {
   const msgs = {
     room_not_found: '존재하지 않는 방 코드입니다.',
