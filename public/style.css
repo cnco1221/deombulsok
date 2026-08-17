@@ -113,14 +113,15 @@ button:disabled { opacity: 0.5; cursor: not-allowed; }
 .players-ring { position: absolute; inset: 0; pointer-events: none; }
 .player-chip {
   position: absolute; transform: translate(-50%, -50%);
-  display: flex; align-items: center; gap: 6px;
-  padding: 6px 10px; border-radius: 20px; background: var(--panel);
+  display: flex; flex-direction: column; align-items: center; gap: 2px;
+  padding: 6px 10px; border-radius: 14px; background: var(--panel);
   border: 2px solid transparent; font-size: 12px; white-space: nowrap;
   pointer-events: auto;
 }
 .player-chip.finder { border-color: var(--accent); }
 .player-chip.turn { box-shadow: 0 0 0 2px var(--good); }
 .player-chip.disconnected { opacity: 0.55; }
+.player-chip .chip-top { display: flex; align-items: center; gap: 6px; }
 .player-chip .dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
 .player-chip .name { max-width: 80px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .player-chip .chips { color: var(--muted); font-size: 11px; flex-shrink: 0; }
@@ -189,8 +190,15 @@ button:disabled { opacity: 0.5; cursor: not-allowed; }
 }
 .suspect-face .hidden-mark { color: var(--muted); font-size: 24px; }
 
+.culprit-label { color: var(--danger); font-weight: 700; font-size: 13px; }
+
 .chip-stack { display: flex; flex-wrap: wrap; gap: 3px; justify-content: center; min-height: 20px; }
 .mini-chip { width: 14px; height: 14px; border-radius: 50%; border: 1px solid rgba(0,0,0,0.3); }
+.mini-chip.latest {
+  width: 19px; height: 19px;
+  box-shadow: 0 0 0 2px #fff, 0 0 8px 2px rgba(255, 255, 255, 0.75);
+  transform: translateY(-2px);
+}
 
 #shared-card-box { margin-top: 20px; }
 #shared-card-box .label { color: var(--muted); font-size: 13px; margin-bottom: 6px; }
@@ -199,23 +207,23 @@ button:disabled { opacity: 0.5; cursor: not-allowed; }
   width: 60px; height: 102px; position: relative; font-size: 22px;
 }
 
-/* Phase 1: my card shown big, then a "passed to" confirmation */
+/* Phase 1: my card shown big while I inspect it */
 .pass-card-view { display: flex; flex-direction: column; align-items: center; gap: 14px; padding: 10px 0 20px; }
 .pass-hint { color: var(--muted); font-size: 13px; }
-.pass-done { text-align: center; color: var(--good); font-size: 15px; }
-.pass-check { font-size: 40px; margin-bottom: 8px; }
 
-/* Hand + confirm button, pinned to the bottom of the screen */
+/* My hand: own card + (once dealt) the card passed to me, shown right on the board */
+.my-hand { display: flex; justify-content: center; gap: 28px; padding: 14px 0 4px; }
+.hand-slot { display: flex; flex-direction: column; align-items: center; gap: 6px; }
+.hand-label { color: var(--muted); font-size: 12px; }
+
+/* Confirm button, pinned to the bottom of the screen */
 #screen-game { padding-bottom: 76px; }
 .bottom-bar {
   position: fixed; left: 0; right: 0; bottom: 0; z-index: 15;
   background: var(--panel); border-top: 1px solid var(--border);
   padding: 10px 16px;
-  display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap;
+  display: flex; align-items: center; justify-content: center; gap: 12px; flex-wrap: wrap;
 }
-.my-info-inline { display: flex; gap: 14px; flex-wrap: wrap; font-size: 13px; }
-.my-info-inline .kv { display: flex; gap: 5px; align-items: baseline; }
-.my-info-inline .kv .k { color: var(--muted); font-size: 11px; }
 .action-row { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
 .phase-title { font-size: 12px; color: var(--muted); white-space: nowrap; }
 #action-body button { margin: 0; }
@@ -231,8 +239,6 @@ button:disabled { opacity: 0.5; cursor: not-allowed; }
   padding: 28px; max-width: 560px; width: 100%; max-height: 85vh; overflow-y: auto;
 }
 .overlay-box h2 { margin-top: 0; }
-.overlay-box .result-suspect { display: flex; align-items: center; gap: 12px; padding: 8px 0; border-bottom: 1px solid var(--border); }
-.overlay-box .result-suspect.culprit { color: var(--danger); font-weight: 700; }
 .overlay-box .ranking-row { display: flex; justify-content: space-between; padding: 6px 0; border-bottom: 1px solid var(--border); }
 .overlay-box .ranking-row.first { color: var(--accent); font-weight: 700; }
 
@@ -266,10 +272,10 @@ button:disabled { opacity: 0.5; cursor: not-allowed; }
   .suspect-face .unseen-marker { font-size: 9px; }
 
   .mini-card { width: 50px; height: 85px; font-size: 20px; }
+  .my-hand { gap: 16px; }
 
   #screen-game { padding-bottom: 96px; }
   .bottom-bar { flex-direction: column; align-items: stretch; padding: 8px 12px; }
-  .my-info-inline { justify-content: center; }
   .action-row { justify-content: center; }
   #action-body button { flex: 1; }
 

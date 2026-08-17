@@ -5,7 +5,7 @@ const SESSION_KEY = 'deombulsok_session_token';
 let myPlayerId = null;
 let state = null;
 let selectedForCheck = []; // finderCheck free-choice: up to 2 suspect ids
-let resuming = !!localStorage.getItem(SESSION_KEY);
+let resuming = !!sessionStorage.getItem(SESSION_KEY);
 
 // ---------- DOM refs ----------
 const screenLobby = document.getElementById('screen-lobby');
@@ -18,7 +18,7 @@ const lobbyResuming = document.getElementById('lobby-resuming');
 if (resuming) render();
 
 socket.on('connect', () => {
-  const token = localStorage.getItem(SESSION_KEY);
+  const token = sessionStorage.getItem(SESSION_KEY);
   if (token) {
     resuming = true;
     render();
@@ -27,7 +27,7 @@ socket.on('connect', () => {
 });
 
 socket.on('session:resumeFailed', () => {
-  localStorage.removeItem(SESSION_KEY);
+  sessionStorage.removeItem(SESSION_KEY);
   resuming = false;
   state = null;
   render();
@@ -69,7 +69,7 @@ socket.on('room:state', (s) => {
   myPlayerId = s.myId;
   resuming = false;
   selectedForCheck = [];
-  if (s.mySessionToken) localStorage.setItem(SESSION_KEY, s.mySessionToken);
+  if (s.mySessionToken) sessionStorage.setItem(SESSION_KEY, s.mySessionToken);
   render();
 });
 
@@ -158,19 +158,22 @@ function renderGame() {
   renderPlayersStrip();
   renderPassCardView();
   renderCrimeScene();
-  renderMyInfo();
+  renderMyHand();
   renderActionPanel();
   renderLog();
   renderOverlay();
 }
 
-// Phase 1 (card pass): show my own card as a big person-card to inspect, then once I've
-// confirmed, show who it went to instead of the crime scene (which isn't checkable yet anyway).
+// Phase 1 (card pass): show my own card as a big person-card to inspect first. The moment I
+// confirm it, the board (crime scene + my hand) takes over — no separate "passed to" screen,
+// since the received card slot in my-hand shows who/what to expect instead.
 function renderPassCardView() {
   const view = document.getElementById('pass-card-view');
   const crimeSceneEl = document.querySelector('.crime-scene');
+  const myAcked = state.ackedPlayers.includes(myPlayerId);
+  const stillWaitingOnMe = state.phase === 'passCards' && !myAcked;
 
-  if (state.phase !== 'passCards') {
+  if (!stillWaitingOnMe) {
     view.classList.add('hidden');
     view.innerHTML = '';
     crimeSceneEl.classList.remove('hidden');
@@ -179,19 +182,8 @@ function renderPassCardView() {
 
   crimeSceneEl.classList.add('hidden');
   view.classList.remove('hidden');
-
-  const acked = state.ackedPlayers.includes(myPlayerId);
-  if (!acked) {
-    view.innerHTML = `<div class="suspect-face big-card">${personCardMarkup(valueLabelHtml(state.myKnowledge.ownCardValue))}</div>
-      <div class="pass-hint">내 카드를 확인하세요</div>`;
-  } else {
-    const myIndex = state.players.findIndex((p) => p.id === myPlayerId);
-    const next = myIndex >= 0 ? state.players[(myIndex + 1) % state.players.length] : null;
-    view.innerHTML = `<div class="pass-done">
-      <div class="pass-check">✅</div>
-      <div>왼쪽 사람${next ? ` (${escapeHtml(next.nickname)})` : ''}에게 넘겼습니다</div>
-    </div>`;
-  }
+  view.innerHTML = `<div class="suspect-face big-card">${personCardMarkup(valueLabelHtml(state.myKnowledge.ownCardValue))}</div>
+    <div class="pass-hint">내 카드를 확인하세요</div>`;
 }
 
 // Seats players in a circle around the table (crime scene), like sitting around it,
@@ -205,8 +197,12 @@ function renderPlayersStrip() {
   const isMobile = window.innerWidth <= 600;
   const RX = isMobile ? 33 : 44; // ellipse radius, % of table-area width
   const RY = isMobile ? 37 : 42; // ellipse radius, % of table-area height
+  const myIndex = state.players.findIndex((p) => p.id === myPlayerId);
   state.players.forEach((p, i) => {
-    const angle = (360 / n) * i - 90; // start at 12 o'clock, go clockwise
+    // Rotate the ring so my own seat always lands at 90° (bottom-center), others fanning
+    // out clockwise from there, instead of a fixed seat 0-at-top layout.
+    const offset = myIndex >= 0 ? (i - myIndex + n) % n : i;
+    const angle = 90 + (360 / n) * offset;
     const rad = (angle * Math.PI) / 180;
     const x = 50 + RX * Math.cos(rad);
     const y = 50 + RY * Math.sin(rad);
@@ -217,8 +213,10 @@ function renderPlayersStrip() {
     el.className = 'player-chip' + (isFinder ? ' finder' : '') + (isTurn ? ' turn' : '') + (!p.isBot && !p.connected ? ' disconnected' : '');
     el.style.left = x + '%';
     el.style.top = y + '%';
-    el.innerHTML = `<span class="dot" style="background:${p.color}"></span>
-      <span class="name">${escapeHtml(p.nickname)}${p.id === myPlayerId ? ' (나)' : ''}${!p.isBot && !p.connected ? ' 🔌' : ''}</span>
+    el.innerHTML = `<div class="chip-top">
+        <span class="dot" style="background:${p.color}"></span>
+        <span class="name">${escapeHtml(p.nickname)}${p.id === myPlayerId ? ' (나)' : ''}${!p.isBot && !p.connected ? ' 🔌' : ''}</span>
+      </div>
       <span class="chips">🕵️${p.detectiveChips} ❌${p.mistakeChips}</span>`;
     ring.appendChild(el);
   });
@@ -247,7 +245,8 @@ function renderCrimeScene() {
     const face = document.createElement('div');
     const known = 'value' in s;
     face.className = 'suspect-face' + (known ? ' known' : '');
-    if (s.revealed && state.lastRoundResult && state.lastRoundResult.culpritSuspectId === s.id) {
+    const isCulprit = s.revealed && state.lastRoundResult && state.lastRoundResult.culpritSuspectId === s.id;
+    if (isCulprit) {
       face.classList.add('culprit');
     }
     if (known && s.value === 5) face.classList.add('five-card');
@@ -268,11 +267,19 @@ function renderCrimeScene() {
     });
     wrap.appendChild(face);
 
+    if (isCulprit) {
+      const culpritLabel = document.createElement('div');
+      culpritLabel.className = 'culprit-label';
+      culpritLabel.textContent = '👉 범인';
+      wrap.appendChild(culpritLabel);
+    }
+
     const stack = document.createElement('div');
     stack.className = 'chip-stack';
-    s.accusations.forEach((a) => {
+    s.accusations.forEach((a, idx) => {
+      const isLatest = s.id === state.lastAccusedSuspectId && idx === s.accusations.length - 1;
       const chip = document.createElement('div');
-      chip.className = 'mini-chip';
+      chip.className = 'mini-chip' + (isLatest ? ' latest' : '');
       chip.style.background = a.color;
       chip.title = a.nickname;
       stack.appendChild(chip);
@@ -311,25 +318,32 @@ function isMyActionTurn() {
   return false;
 }
 
-function renderMyInfo() {
-  const body = document.getElementById('my-info-body');
+// My own card (and, once dealt, the card passed to me) shown as small person-cards on the board.
+function renderMyHand() {
+  const el = document.getElementById('my-hand');
   const k = state.myKnowledge;
-  if (!k) { body.innerHTML = ''; return; }
-  let html = '';
-  html += kv('내 카드', fmtVal(k.ownCardValue));
-  if (!state.twoPlayerMode && state.phase !== 'passCards') {
-    html += kv('전달받은 카드', fmtVal(k.receivedCardValue));
+  const myAcked = state.ackedPlayers.includes(myPlayerId);
+  const showable = k && (state.phase !== 'passCards' || myAcked);
+  if (!showable) {
+    el.classList.add('hidden');
+    el.innerHTML = '';
+    return;
   }
-  body.innerHTML = html;
+  el.classList.remove('hidden');
+  let html = handSlotHtml('내 카드', valueLabelHtml(k.ownCardValue));
+  if (!state.twoPlayerMode) {
+    // Still waiting on the others to pass theirs — nothing to show yet.
+    const receivedHtml = state.phase === 'passCards' ? '?' : valueLabelHtml(k.receivedCardValue);
+    html += handSlotHtml('전달받은 카드', receivedHtml);
+  }
+  el.innerHTML = html;
 }
 
-function kv(k, v) {
-  return `<div class="kv"><span class="k">${k}</span><span class="v">${v}</span></div>`;
-}
-function fmtVal(v) {
-  if (v === null) return 'X';
-  if (v === undefined) return '-';
-  return valueLabelHtml(v);
+function handSlotHtml(label, cardHtml) {
+  return `<div class="hand-slot">
+    <div class="hand-label">${label}</div>
+    <div class="mini-card">${personCardMarkup(cardHtml)}</div>
+  </div>`;
 }
 
 // 5는 "5가 있으면 최솟값이 범인" 규칙을 뒤집는 특수 카드라 항상 둥근 화살표 고리+빨간색으로 강조 표시한다.
@@ -355,7 +369,9 @@ function renderActionPanel() {
 
   if (state.phase === 'passCards') {
     const acked = state.ackedPlayers.includes(myPlayerId);
-    title.textContent = `카드 확인 (${state.ackedPlayers.length}/${state.players.length})`;
+    title.textContent = acked
+      ? `왼쪽 사람에게 전달 (${state.ackedPlayers.length}/${state.players.length})`
+      : `카드 확인 (${state.ackedPlayers.length}/${state.players.length})`;
     const btn = document.createElement('button');
     btn.className = 'primary';
     btn.textContent = '확인';
@@ -404,6 +420,13 @@ function renderActionPanel() {
 
   if (state.phase === 'result') {
     title.textContent = '진상 해명';
+    if (state.hostId === myPlayerId) {
+      const btn = document.createElement('button');
+      btn.className = 'primary';
+      btn.textContent = '다음 라운드';
+      btn.addEventListener('click', () => socket.emit('game:nextRound'));
+      body.appendChild(btn);
+    }
     return;
   }
 
@@ -424,49 +447,6 @@ function renderOverlay() {
   const overlay = document.getElementById('overlay');
   const box = document.getElementById('overlay-box');
 
-  if (state.phase === 'result' && state.lastRoundResult) {
-    overlay.classList.remove('hidden');
-    const r = state.lastRoundResult;
-    let html = `<h2>${state.round}라운드 진상 해명</h2>`;
-    r.suspects.forEach((s) => {
-      const isCulprit = s.id === r.culpritSuspectId;
-      html += `<div class="result-suspect${isCulprit ? ' culprit' : ''}">
-        <span>${valueLabelHtml(s.value)}</span>
-        <span>${isCulprit ? '👉 범인' : ''}</span>
-      </div>`;
-    });
-    if (r.chipTransfers.length) {
-      html += '<h3>실수 칩 이동</h3>';
-      r.chipTransfers.forEach((t) => {
-        const p = state.players.find((pp) => pp.id === t.toPlayerId);
-        html += `<div>${p ? escapeHtml(p.nickname) : '?'}이(가) 칩 ${t.count}개를 실수 칩으로 받았습니다.</div>`;
-      });
-    }
-    if (r.removedChips.length) {
-      html += '<h3>제거된 칩</h3>';
-      r.removedChips.forEach((t) => {
-        const p = state.players.find((pp) => pp.id === t.fromPlayerId);
-        html += `<div>${p ? escapeHtml(p.nickname) : '?'}의 칩 ${t.count}개가 완전히 제거되었습니다.</div>`;
-      });
-    }
-    box.innerHTML = html;
-
-    const isHost = state.hostId === myPlayerId;
-    const footer = document.createElement('div');
-    footer.style.marginTop = '16px';
-    if (isHost) {
-      const btn = document.createElement('button');
-      btn.className = 'primary';
-      btn.textContent = '다음 라운드';
-      btn.addEventListener('click', () => socket.emit('game:nextRound'));
-      footer.appendChild(btn);
-    } else {
-      footer.innerHTML = '<p style="color:var(--muted)">방장이 다음 라운드를 시작할 때까지 기다리세요.</p>';
-    }
-    box.appendChild(footer);
-    return;
-  }
-
   if (state.phase === 'gameover' && state.finalRanking) {
     overlay.classList.remove('hidden');
     let html = '<h2>게임 종료!</h2>';
@@ -486,7 +466,7 @@ function renderOverlay() {
 
 function returnToLobby() {
   socket.emit('room:leave');
-  localStorage.removeItem(SESSION_KEY);
+  sessionStorage.removeItem(SESSION_KEY);
   location.reload();
 }
 
