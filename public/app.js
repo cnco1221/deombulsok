@@ -201,8 +201,8 @@ function renderPlayersStrip() {
 
 // White person-silhouette card face with the value centered on it (used for suspect/victim/shared cards).
 function personCardMarkup(numberHtml) {
-  return `<svg class="person-svg" viewBox="0 0 100 170" preserveAspectRatio="xMidYMid meet" aria-hidden="true">
-      <path class="person-shape" d="M27,48 L73,48 Q78,48 78,53 L78,160 Q78,165 73,165 L56,165 L56,100 L44,100 L44,165 L27,165 Q22,165 22,160 L22,53 Q22,48 27,48 Z"></path>
+  return `<svg class="person-svg" viewBox="0 0 100 145" preserveAspectRatio="xMidYMid meet" aria-hidden="true">
+      <path class="person-shape" d="M27,48 L73,48 Q78,48 78,53 L78,135 Q78,140 73,140 L56,140 L56,100 L44,100 L44,140 L27,140 Q22,140 22,135 L22,53 Q22,48 27,48 Z"></path>
       <circle class="person-shape" cx="50" cy="30" r="18"></circle>
     </svg>
     <span class="card-number">${numberHtml}</span>`;
@@ -227,20 +227,20 @@ function renderCrimeScene() {
       face.classList.add('culprit');
     }
     if (known && s.value === 5) face.classList.add('five-card');
-    if (canSelectForCheck || canAccuse) {
+    if (canSelectForCheck) {
       face.classList.add('selectable');
       face.setAttribute('role', 'button');
       face.setAttribute('tabindex', '0');
-      if (canSelectForCheck && selectedForCheck.includes(s.id)) face.classList.add('selected');
+      if (selectedForCheck.includes(s.id)) face.classList.add('selected');
     }
 
     const plainLabel = known ? (s.value === null ? 'X' : s.value) : '?';
     face.innerHTML = personCardMarkup(known ? valueLabelHtml(s.value) : '?') + (s.unseenMarker ? '<span class="unseen-marker">🚫확인안됨</span>' : '');
     face.setAttribute('aria-label', `용의자 카드: ${plainLabel}`);
 
-    face.addEventListener('click', () => onSuspectClick(s.id, canSelectForCheck, canAccuse));
+    face.addEventListener('click', () => onSuspectClick(s.id, canSelectForCheck));
     face.addEventListener('keydown', (e) => {
-      if (e.key === 'Enter' || e.key === ' ') onSuspectClick(s.id, canSelectForCheck, canAccuse);
+      if (e.key === 'Enter' || e.key === ' ') onSuspectClick(s.id, canSelectForCheck);
     });
     wrap.appendChild(face);
 
@@ -249,6 +249,14 @@ function renderCrimeScene() {
       culpritLabel.className = 'culprit-label';
       culpritLabel.textContent = '👉 범인';
       wrap.appendChild(culpritLabel);
+    }
+
+    if (canAccuse) {
+      const accuseBtn = document.createElement('button');
+      accuseBtn.className = 'accuse-btn primary';
+      accuseBtn.textContent = '고발';
+      accuseBtn.addEventListener('click', () => socket.emit('game:placeAccusation', { suspectId: s.id }));
+      wrap.appendChild(accuseBtn);
     }
 
     const stack = document.createElement('div');
@@ -277,16 +285,13 @@ function renderCrimeScene() {
   }
 }
 
-function onSuspectClick(suspectId, canSelectForCheck, canAccuse) {
-  if (canSelectForCheck) {
-    const idx = selectedForCheck.indexOf(suspectId);
-    if (idx >= 0) selectedForCheck.splice(idx, 1);
-    else if (selectedForCheck.length < 2) selectedForCheck.push(suspectId);
-    renderCrimeScene();
-    renderActionPanel();
-  } else if (canAccuse) {
-    socket.emit('game:placeAccusation', { suspectId });
-  }
+function onSuspectClick(suspectId, canSelectForCheck) {
+  if (!canSelectForCheck) return;
+  const idx = selectedForCheck.indexOf(suspectId);
+  if (idx >= 0) selectedForCheck.splice(idx, 1);
+  else if (selectedForCheck.length < 2) selectedForCheck.push(suspectId);
+  renderCrimeScene();
+  renderActionPanel();
 }
 
 function isMyActionTurn() {
