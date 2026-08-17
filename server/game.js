@@ -38,6 +38,7 @@ function createRoom(code) {
     lastRoundResult: null,
     log: [],
     finalRanking: null,
+    cancelVotes: new Set(), // playerIds who agreed to cancel the current game; bots are auto-added at start
   };
 }
 
@@ -338,6 +339,40 @@ function nextRound(room) {
   return { ok: true, gameOver: false };
 }
 
+// Resets the room back to a fresh lobby, aborting the in-progress game (chips/scores reset too).
+function cancelGame(room) {
+  room.started = false;
+  room.phase = 'lobby';
+  room.round = 0;
+  room.finderIndex = 0;
+  room.turnIndex = 0;
+  room.crimeScene = null;
+  room.twoPlayerMode = false;
+  room.sharedCard = null;
+  room.playerKnowledge = {};
+  room.ackedPlayers = new Set();
+  room.lastAccusedSuspectId = null;
+  room.lastRoundResult = null;
+  room.finalRanking = null;
+  room.cancelVotes = new Set();
+  room.players.forEach((p) => {
+    p.detectiveChips = START_DETECTIVE_CHIPS;
+    p.mistakeChips = 0;
+  });
+  pushLog(room, '모든 참가자가 동의하여 게임이 취소되었습니다.');
+}
+
+// Toggles a player's cancel vote (bots are pre-agreed at game start, see game:start).
+// Returns true once every player has agreed, in which case the caller should also call cancelGame.
+function toggleCancelVote(room, playerId) {
+  if (room.cancelVotes.has(playerId)) {
+    room.cancelVotes.delete(playerId);
+  } else {
+    room.cancelVotes.add(playerId);
+  }
+  return room.cancelVotes.size >= room.players.length;
+}
+
 module.exports = {
   createRoom,
   addPlayer,
@@ -352,6 +387,8 @@ module.exports = {
   currentActingPlayer,
   getForcedCheckIds,
   nextRound,
+  cancelGame,
+  toggleCancelVote,
   pushLog,
   START_DETECTIVE_CHIPS,
   MISTAKE_CHIP_LOSE_THRESHOLD,

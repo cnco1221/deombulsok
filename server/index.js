@@ -146,11 +146,24 @@ io.on('connection', (socket) => {
     if (room.players.length > 5) return socket.emit('room:error', { error: 'too_many_players' });
 
     room.started = true;
+    room.cancelVotes = new Set(room.players.filter((p) => p.isBot).map((p) => p.id));
     const n = room.players.length;
     const initialFinder = Math.floor(Math.random() * n);
     G.beginRound(room, initialFinder);
     broadcastRoom(room);
     maybeRunBots(room);
+  });
+
+  socket.on('game:voteCancel', () => {
+    const link = RM.socketToPlayer.get(socket.id);
+    if (!link) return;
+    const room = RM.getRoom(link.code);
+    if (!room || !room.started) return;
+    const allAgreed = G.toggleCancelVote(room, link.playerId);
+    if (allAgreed) {
+      G.cancelGame(room);
+    }
+    broadcastRoom(room);
   });
 
   socket.on('game:ackCard', () => {

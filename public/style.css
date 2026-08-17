@@ -97,13 +97,20 @@ button:disabled { opacity: 0.5; cursor: not-allowed; }
   position: absolute; right: 8px; top: 50%; transform: translateY(-50%);
   padding: 3px 8px; font-size: 15px; line-height: 1; border-radius: 6px;
 }
+.cancel-vote-btn {
+  position: absolute; left: 8px; top: 50%; transform: translateY(-50%);
+  padding: 3px 10px; font-size: 11px; border-radius: 6px;
+  color: var(--danger); border-color: var(--danger);
+}
+.cancel-vote-btn.voted { background: var(--danger); color: #fff; }
 
+/* Sits as the top strip of the fixed bottom panel, right above the action row */
 .log-latest {
-  padding: 4px 16px;
-  font-size: 12px; color: var(--muted);
+  padding: 5px 16px;
+  font-size: 11px; color: var(--muted); text-align: center;
   white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
-  max-width: 100%;
-  min-height: 1.4em;
+  min-height: 1.3em;
+  border-bottom: 1px solid var(--border);
 }
 
 /* Players seated in a circle around the table instead of a row */
@@ -112,7 +119,7 @@ button:disabled { opacity: 0.5; cursor: not-allowed; }
   display: flex; align-items: center; justify-content: center;
   min-height: 430px;
   max-width: 640px;
-  margin: 0 auto;
+  margin: 24px auto 0;
   padding: 50px 76px;
 }
 .players-ring { position: absolute; inset: 0; pointer-events: none; }
@@ -147,8 +154,10 @@ button:disabled { opacity: 0.5; cursor: not-allowed; }
 }
 .card-number.victim-label {
   z-index: 2;
-  font-size: 13px; letter-spacing: 3px;
-  writing-mode: vertical-rl; text-orientation: upright;
+  font-size: 13px; letter-spacing: 1px;
+  /* .card-face is rotated 90deg so the body lies on its side; counter-rotate just the
+     label so "피해자" still reads normally, horizontal, to the viewer. */
+  transform: rotate(-90deg);
   text-shadow: 0 0 3px #fff, 0 0 3px #fff, 0 0 2px #fff;
 }
 
@@ -266,9 +275,10 @@ button:disabled { opacity: 0.5; cursor: not-allowed; }
   input { padding: 12px; font-size: 15px; }
 
   .game-header { padding: 5px 12px; font-size: 11px; }
-  .log-latest { padding: 2px 12px; font-size: 11px; }
+  .cancel-vote-btn { font-size: 9px; padding: 2px 6px; }
+  .log-latest { padding: 4px 12px; font-size: 10px; }
 
-  .table-area { min-height: 480px; padding: 40px 30px; max-width: 100%; }
+  .table-area { min-height: 480px; padding: 40px 30px; max-width: 100%; margin-top: 14px; }
   .player-chip { font-size: 9px; padding: 3px 6px; gap: 3px; border-radius: 10px; }
   .player-chip .name { max-width: 42px; }
   .player-chip .chips { font-size: 8px; }

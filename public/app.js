@@ -66,6 +66,11 @@ document.addEventListener('fullscreenchange', () => {
   fullscreenBtn.title = document.fullscreenElement ? '전체화면 종료' : '전체화면';
 });
 
+// Cancelling a game needs everyone's agreement; bots always agree (pre-added server-side).
+document.getElementById('cancel-vote-btn').addEventListener('click', () => {
+  socket.emit('game:voteCancel');
+});
+
 socket.on('room:error', ({ error }) => {
   const msgs = {
     room_not_found: '존재하지 않는 방 코드입니다.',
@@ -174,6 +179,20 @@ function renderGame() {
   renderActionPanel();
   renderLog();
   renderOverlay();
+  renderCancelVote();
+}
+
+function renderCancelVote() {
+  const btn = document.getElementById('cancel-vote-btn');
+  if (state.phase === 'gameover') {
+    btn.classList.add('hidden');
+    return;
+  }
+  btn.classList.remove('hidden');
+  const votes = state.cancelVotes || [];
+  const iVoted = votes.includes(myPlayerId);
+  btn.textContent = `✕ 취소 (${votes.length}/${state.players.length})`;
+  btn.classList.toggle('voted', iVoted);
 }
 
 // Seats players in a circle around the table (crime scene), like sitting around it,

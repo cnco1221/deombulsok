@@ -100,6 +100,7 @@ function serializeForPlayer(room, playerId) {
     turnPlayerId: room.turnIndex !== null && room.turnIndex !== undefined ? (room.players[room.turnIndex] ? room.players[room.turnIndex].id : null) : null,
     lastAccusedSuspectId: room.lastAccusedSuspectId,
     ackedPlayers: room.ackedPlayers ? Array.from(room.ackedPlayers) : [],
+    cancelVotes: room.cancelVotes ? Array.from(room.cancelVotes) : [],
     players: room.players.map((p) => ({
       id: p.id,
       nickname: p.nickname,

@@ -48,11 +48,10 @@
 
 <div id="screen-game" class="screen hidden">
   <header class="game-header">
+    <button id="cancel-vote-btn" class="cancel-vote-btn hidden" type="button" title="게임 취소">✕ 취소</button>
     <div>라운드 <b id="hdr-round"></b> / <span id="hdr-max-round"></span></div>
     <button id="fullscreen-btn" class="fullscreen-btn" type="button" title="전체화면">⛶</button>
   </header>
-
-  <div class="log-latest" id="log-latest"></div>
 
   <div class="table-area" id="table-area">
     <div class="players-ring" id="players-strip"></div>
@@ -90,6 +89,7 @@
   </div>
 
   <div class="bottom-bar" id="bottom-bar">
+    <div class="log-latest" id="log-latest"></div>
     <div class="action-row">
       <span class="phase-title" id="phase-title">-</span>
       <div id="action-body"></div>
